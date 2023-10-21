@@ -94,7 +94,9 @@ pub fn async_mock(_attr: TokenStream, item: TokenStream) -> TokenStream {
 
             expectation_validation.push(quote! {
                 {
-                    let expectation = self.#expectation_name.inner.lock().unwrap();
+                    let expectation = self.#expectation_name.inner.lock();
+                    assert!(expectation.is_ok(), "Poisoned mocking state for {}.", stringify!(#function_name));
+                    let expectation = expectation.unwrap();
                     assert_eq!(
                         expectation.expecting,
                         expectation.called,
