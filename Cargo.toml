@@ -1,8 +1,13 @@
 [package]
 name = "async-mock"
+description = "Async trait mocking"
 version = "0.1.0"
 edition = "2021"
-publish = true
+authors = ["Jean-Sébastien Dominique <jd@amateurradio.engineer>"]
+repository = "https://github.com/SignalWhisperer/async-mock-rs"
+license = "MIT"
+keywords = ["async", "mock", "test"]
+categories = ["development-tools::testing"]
 
 [lib]
 proc-macro = true
