@@ -25,6 +25,14 @@ trait MyTrait {
     async fn foo(&self, x: i32) -> i32;
 }
 
+#[derive(Default)]
+struct MyStruct;
+impl MyStruct {
+    async fn bar(&self, my_trait: &impl MyTrait, x: i32) -> i32 {
+        my_trait.foo(x * 2).await
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -36,7 +44,8 @@ mod tests {
             .once()
             .returning(|x| x + 1);
 
-        assert_eq!(4, mock.foo(3).await);
+        let system_under_test = MyStruct::default();
+        assert_eq!(7, system_under_test.bar(&mock, 3).await);
     }
 }
 ```
