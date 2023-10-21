@@ -1,7 +1,7 @@
 [package]
 name = "async-mock"
 description = "Async trait mocking"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Jean-Sébastien Dominique <jd@amateurradio.engineer>"]
 repository = "https://github.com/SignalWhisperer/async-mock-rs"
@@ -16,3 +16,8 @@ proc-macro = true
 proc-macro2 = "1.0.69"
 quote = "1.0.33"
 syn = { version = "2.0.38", features = ["full"] }
+
+[dev-dependencies]
+async-trait = "0.1.74"
+futures = "0.3.28"
+tokio = { version = "1.33.0", features = ["full"] }

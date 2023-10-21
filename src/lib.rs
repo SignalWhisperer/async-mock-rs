@@ -83,28 +83,42 @@ pub fn async_mock(_attr: TokenStream, item: TokenStream) -> TokenStream {
             });
 
             impls.push(quote! {
-                    #function_signature {
-                        let mut expectation = self.#expectation_name.inner.lock().unwrap();
-                        let func = expectation.returning.expect(format!("Missing expectation for `{}`", stringify!(#function_name)).as_str());
-                        expectation.called += 1;
+                #function_signature {
+                    let expectation = self.#expectation_name.inner.lock();
+                    assert!(expectation.is_ok(), "Poisoned inner mocking state for `{}`.", stringify!(#function_name));
+                    let mut expectation = expectation.unwrap();
 
-                        func(#(#fn_arg_names),*)
-                    }
-                });
+                    expectation.called += 1;
+                    let func = expectation.returning;
+
+                    drop(expectation);
+
+                    assert!(func.is_some(), "Missing returning function for `{}`", stringify!(#function_name));
+                    func.unwrap()(#(#fn_arg_names),*)
+                }
+            });
 
             expectation_validation.push(quote! {
                 {
                     let expectation = self.#expectation_name.inner.lock();
-                    assert!(expectation.is_ok(), "Poisoned mocking state for {}.", stringify!(#function_name));
+                    assert!(expectation.is_ok(), "Poisoned inner mocking state for `{}`.", stringify!(#function_name));
                     let expectation = expectation.unwrap();
-                    assert_eq!(
-                        expectation.expecting,
-                        expectation.called,
-                        "Failed expectation for {}. Called {} times but expecting {}.",
-                        stringify!(#function_name),
-                        expectation.called,
-                        expectation.expecting
-                    );
+
+                    let expecting = expectation.expecting;
+                    let called = expectation.called;
+
+                    drop(expectation);
+
+                    if !std::thread::panicking() {
+                        assert_eq!(
+                            expecting,
+                            called,
+                            "Failed expectation for `{}`. Called {} times but expecting {}.",
+                            stringify!(#function_name),
+                            called,
+                            expecting
+                        );
+                    }
                 }
             });
 
