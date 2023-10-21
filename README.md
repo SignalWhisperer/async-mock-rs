@@ -1,6 +1,6 @@
 # async-mock
 
-[<img alt="github" src="https://img.shields.io/badge/github-SignalWhisperer/async--mock-3A4C7E?style=plastic&labelColor=555555&logo=github" height="20">](https://github.com/SignalWhisperer/async-trait)
+[<img alt="github" src="https://img.shields.io/badge/github-SignalWhisperer/async--mock-3A4C7E?style=plastic&labelColor=555555&logo=github" height="20">](https://github.com/SignalWhisperer/async-mock-rs)
 [<img alt="crates.io" src="https://img.shields.io/crates/v/async-mock.svg?style=plastic&color=834B02&logo=rust" height="20">](https://crates.io/crates/async-mock)
 [<img alt="docs.rs" src="https://img.shields.io/badge/docs.rs-async--mock-28624E?style=plastic&labelColor=555555&logo=docs.rs" height="20">](https://docs.rs/async-mock)
 
