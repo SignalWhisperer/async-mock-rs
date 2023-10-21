@@ -44,11 +44,13 @@ pub fn async_mock(_attr: TokenStream, item: TokenStream) -> TokenStream {
             });
 
             expectations.push(quote! {
+                #[cfg(test)]
                 #[derive(Default)]
                 pub struct #expectation_struct_name {
                     inner: std::sync::Mutex<#expectation_struct_name_inner>,
                 }
 
+                #[cfg(test)]
                 #[derive(Default)]
                 pub struct #expectation_struct_name_inner {
                     expecting: u32,
@@ -56,6 +58,7 @@ pub fn async_mock(_attr: TokenStream, item: TokenStream) -> TokenStream {
                     returning: Option<fn(#(#fn_arg_types),*) #fn_rt>,
                 }
 
+                #[cfg(test)]
                 impl #expectation_struct_name {
                     pub fn once(&mut self) -> &mut Self {
                         self.inner.lock().unwrap().expecting = 1;
@@ -136,32 +139,35 @@ pub fn async_mock(_attr: TokenStream, item: TokenStream) -> TokenStream {
         #input
 
         #[cfg(test)]
-        pub(crate) mod mocks {
-            use super::*;
+        #[derive(Default)]
+        #[allow(dead_code)]
+        pub struct #mock_name {
+            #(#objects),*
+        }
 
-            #[derive(Default)]
-            #[allow(dead_code)]
-            pub struct #mock_name {
-                #(#objects),*
+        #[cfg(test)]
+        impl Drop for #mock_name {
+            fn drop(&mut self) {
+                #(#expectation_validation)*
             }
+        }
 
-            impl Drop for #mock_name {
-                fn drop(&mut self) {
-                    #(#expectation_validation)*
-                }
+        #(#expectations)*
+
+        #[cfg(test)]
+        #[allow(dead_code)]
+        impl #mock_name {
+            #(#functions) *
+
+            pub fn new() -> Self {
+                Self::default()
             }
+        }
 
-            #(#expectations)*
-
-            #[allow(dead_code)]
-            impl #mock_name {
-                #(#functions) *
-            }
-
-            #[async_trait::async_trait]
-            impl #trait_name for #mock_name {
-                #(#impls) *
-            }
+        #[cfg(test)]
+        #[async_trait::async_trait] // TODO: Only add this if it was used on the trait
+        impl #trait_name for #mock_name {
+            #(#impls) *
         }
     }
     .into()
